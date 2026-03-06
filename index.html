@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Escuela de Idiomas del Ejército</title>
+    <style>
+        /* --- PROTECCIÓN Y BLOQUEOS --- */
+        * {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+            outline: none;
+        }
+
+        @media print { body { display: none !important; } }
+
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            background-color: #f0f2f5; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            margin: 0; 
+            color: #333;
+            overflow: hidden;
+        }
+        
+        .container {
+            background: white;
+            padding: 20px 40px 40px 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            width: 95%;
+            max-width: 1100px; 
+            text-align: center;
+            position: relative;
+            display: flex; 
+            flex-direction: column;
+        }
+
+        .main-layout {
+            display: flex;
+            gap: 20px;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .nav-panel {
+            width: 180px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 10px;
+            border: 1px solid #dee2e6;
+            max-height: 500px;
+            display: none; 
+        }
+
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 4px;
+        }
+
+        .nav-item {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 0.65em;
+            font-weight: bold;
+            color: #6c757d;
+            cursor: pointer;
+        }
+
+        .nav-item.active { border: 2px solid #007bff; color: #007bff; background: #e7f1ff; }
+        .nav-item.answered { background: #28a745; color: white; border-color: #28a745; }
+
+        .content-area { flex: 1; }
+        .pregunta-box { display: none; width: 100%; }
+        
+        .header-pregunta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 10px 0;
+            padding: 0 10px;
+        }
+
+        .texto-pregunta { 
+            font-size: 1.6em; 
+            font-weight: bold;
+            color: #1c1e21;
+            flex: 1;
+            text-align: center;
+        }
+
+        .tiempo-global {
+            background: #343a40;
+            color: #ffc107;
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 1.2em;
+            font-weight: bold;
+            border: 2px solid #ffc107;
+        }
+
+        .bloque-contenido {
+            width: 100%;
+            max-width: 850px; 
+            margin: 0 auto;
+        }
+        
+        .imagen-pregunta {
+            width: 100%;
+            height: auto;
+            max-height: 400px;
+            object-fit: contain;
+            margin-bottom: 35px;
+            border-radius: 12px;
+            display: block;
+            border: 1px solid #f0f0f0;
+            pointer-events: none;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .layout-etapa2 {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .img-lateral {
+            flex: 1;
+            max-width: 350px;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+        }
+        .columna-opciones {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            text-align: center;
+        }
+        
+        .contenedor-opciones-circular {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            width: 100%;
+            margin-bottom: 40px;
+        }
+        
+        .contenedor-opciones-vertical {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto 40px auto;
+        }
+
+        .division-opcion {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .opcion-btn-circular {
+            width: 65px;
+            height: 65px;
+            border-radius: 50%;
+            border: 2px solid #ced4da;
+            background-color: #fff;
+            cursor: pointer;
+            font-size: 1.4em;
+            color: #495057;
+            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .opcion-btn-vertical {
+            width: 100%;
+            padding: 15px 20px;
+            border-radius: 12px;
+            border: 2px solid #ced4da;
+            background-color: #fff;
+            cursor: pointer;
+            font-size: 1.1em;
+            text-align: left;
+            transition: 0.2s;
+            font-weight: 500;
+            color: #1c1e21;
+        }
+
+        .opcion-btn-circular.seleccionada, .opcion-btn-vertical.seleccionada {
+            background-color: #007bff;
+            color: white;
+            border-color: #007bff;
+            box-shadow: 0 5px 15px rgba(0,123,255,0.4);
+        }
+
+        .timer-container {
+            width: 100%;
+            background-color: #e9ecef;
+            border-radius: 20px;
+            margin: 10px auto;
+            height: 8px;
+            overflow: hidden;
+        }
+        
+        .timer-bar {
+            height: 100%;
+            width: 100%;
+            background-color: #dc3545;
+        }
+
+        .contador-texto {
+            font-size: 0.95em;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+
+        .btn-primario { padding: 16px 35px; cursor: pointer; border-radius: 12px; border: none; background: #007bff; color: white; font-weight: bold; font-size: 1.1em; transition: 0.3s; }
+        
+        .btn-pausa { display: none !important; }
+
+        .btn-siguiente {
+            margin-top: 20px;
+            padding: 12px 45px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-siguiente:hover { background-color: #218838; }
+
+        #btnGuardarEnviar {
+            display: none;
+            background-color: #000;
+            margin-top: 20px;
+        }
+
+        #aviso-conexion, #pantalla-carga-final {
+            display: none;
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.98);
+            z-index: 9999;
+            border-radius: 20px;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .loader-container {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .spinner-red {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 6px solid #f3f3f3;
+            border-top: 6px solid #dc3545;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .logo-spinner {
+            width: 40px;
+            height: 40px;
+            object-fit: contain;
+        }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        #modal-confirmacion {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 10000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .input-carnet {
+            padding: 12px;
+            font-size: 1.2em;
+            border: 2px solid #007bff;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            width: 250px;
+            text-align: center;
+            user-select: text !important;
+            -webkit-user-select: text !important;
+        }
+
+        /* Estilos Resultado Final */
+        .card-resultado {
+            background: #fff;
+            padding: 30px;
+            border-radius: 15px;
+            border-top: 6px solid #28a745;
+            text-align: center;
+        }
+        .detalle-estudiante {
+            text-align: left;
+            display: inline-block;
+            margin: 20px 0;
+            font-size: 1.1em;
+            line-height: 2;
+        }
+        .nota-final {
+            font-size: 2em;
+            color: #007bff;
+            margin-top: 15px;
+            font-weight: bold;
+            display: block;
+        }
+		
+		/* PISTA: Busca el final de los estilos y pega esto */
+
+			.card-resultado {
+				padding: 15px 25px; /* Reducimos el espacio interno vertical */
+				border: 2px solid #1a73e8;
+				background: white;
+				border-radius: 15px;
+				text-align: center;
+				max-width: 550px; /* Hacemos la tarjeta más estrecha */
+				margin: 0 auto;   /* La centramos */
+			}
+
+			.detalle-final {
+				text-align: left;
+				background: #f8f9fa;
+				padding: 12px 20px; /* Reducimos relleno */
+				border-radius: 10px;
+				line-height: 1.4;   /* Reducimos el espacio entre líneas de texto */
+				font-size: 0.95em;  /* Texto un poco más pequeño para ahorrar espacio */
+			}
+
+			.nota-destacada {
+				font-size: 28px;    /* Reducimos el tamaño de la fuente de la nota */
+				font-weight: bold;
+				color: #28a745;
+				background: #f1f8e9;
+				padding: 10px;      /* Reducimos relleno */
+				margin: 10px 0;     /* Menos separación arriba y abajo */
+				border-radius: 8px;
+				display: block;
+			}
+		
+    </style>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+	
+</head>
+<body oncontextmenu="return false" onkeydown="return manejarBloqueoTeclado(event)" ondragstart="return false">
+
+<div id="modal-confirmacion">
+    <div class="modal-content">
+        <h3>¿Confirmar Envío?</h3>
+        <p>Una vez enviado, no podrá corregir sus respuestas.</p>
+        <div style="display:flex; gap:10px; justify-content:center; margin-top:20px;">
+            <button onclick="cerrarModal()" class="btn-siguiente" style="background:#6c757d; padding:10px 20px;">Cancelar</button>
+            <button onclick="procesarEnvioFinal()" class="btn-primario" style="padding:10px 20px;">Sí, enviar todo</button>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div id="pantalla-carga-final">
+        <div class="loader-container">
+            <div class="spinner-red"></div>
+            <img src="LOGO_EIE.png" class="logo-spinner" id="img-loader">
+        </div>
+        <h3 id="mensaje-carga-final">Procesando...</h3>
+    </div>
+
+    <div id="aviso-conexion">
+        <div class="loader-container">
+            <div class="spinner-red"></div>
+            <img src="LOGO_EIE.png" class="logo-spinner" alt="Cargando...">
+        </div>
+        <strong style="color: #dc3545; font-size: 1.3em;">SIN CONEXIÓN</strong>
+        <p id="texto-estado" style="color: #666;">Reintentando conectar cada segundo...</p>
+    </div>
+
+    <div id="pantalla-inicio">
+        <h2>EIE TEST BOOK 25</h2>
+        <div style="margin-bottom: 20px;">
+            <p>Ingrese su Número de Carnet para comenzar:</p>
+            <input type="text" id="input-carnet" class="input-carnet" placeholder="C.I. del Estudiante" onfocus="enFocoInput=true" onblur="enFocoInput=false">
+        </div>
+        <p style="margin-bottom: 35px; color: #4b4b4b;"><h2>INSTRUCCIONES PARA EL EXAMEN</h2><br>Si dará el examen en un dispositivo móvil deberá activar la opción SITIO PARA COMPUTADORA y subir el volumen al maximo<br>Una vez presionado el botón de COMENZAR AHORA se iniciará el examen, empezará con la 1ra. Parte del Examen (Listening)<br>Preguntas del 1 al 25, escuchará audios y deberá elegir una opción de respuesta (A, B, C, D)<br>Teniendo un límite de tiempo de 20 segundos por pregunta<br>La 2da. Parte del Examen (Reading) del 26 al 50 no tiene límite de tiempo <br>La duración máxima del examen total es de 45 minutos<br>En el caso de que se pierda la señal el sistema esperará hasta que se vuelva a conectar a la Red de Internet y podrá continuar en la pregunta que se quedó.<br>Nota.- Al responder las 50 preguntas, tendrá la opción de verificar sus respuestas con el navegador en la parte izquierda presionando en el número de pregunta que quiera modificar su respuesta y para finalizar no se olvide de presionar GUARDAR Y ENVIAR</p>
+        <button id="btnIniciar" class="btn-primario">Comenzar Ahora</button>
+    </div>
+
+    <div class="main-layout">
+        <div id="nav-panel" class="nav-panel">
+            <h4 style="margin-top:0; font-size: 0.8em; color:#666; letter-spacing: 1px;">NAVEGACIÓN</h4>
+            <div id="nav-grid" class="nav-grid"></div>
+        </div>
+
+        <div id="pantalla-pregunta" class="pregunta-box">
+            <div class="header-pregunta">
+                <span class="texto-pregunta" id="texto-pregunta">Cargando...</span>
+                <div class="tiempo-global" id="reloj-global">45:00</div>
+            </div>
+            
+            <div id="zona-dinamica" class="bloque-contenido">
+                <div id="espacio-imagen"></div>
+                <div id="contenedor-opciones"></div>
+            </div>
+
+            <div id="wrapper-timer">
+                <div class="timer-container">
+                    <div id="barra-progreso" class="timer-bar"></div>
+                </div>
+                <p class="contador-texto">Tiempo pregunta: <span id="contador-numero">20</span>s</p>
+            </div>
+            
+            <button id="btnSiguiente" class="btn-siguiente">Siguiente Pregunta</button>
+            <button id="btnGuardarEnviar" class="btn-primario">Guardar y Enviar Todo</button>
+        </div>
+    </div>
+
+    <div id="pantalla-final" style="display:none;"></div>
+</div>
+
+<audio id="reproductor"></audio>
+
+<script>
+    // --- CONFIGURACIÓN GOOGLE ---
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzcQlhtW7xYzQ2F3KlR4-qzPMTROaBjTjjLlwTShhnnY7Knvw7MPn-efQebHC66820Bsg/exec"; 
+    let datosEstudiante = null;
+
+    // --- NUEVAS VARIABLES DE AVANCE ---
+    let preguntasVistas = new Set();
+    let preguntasRespondidas = 0;
+
+    // --- LÓGICA DE CARNET Y DESBLOQUEO ---
+    let enFocoInput = false;
+    let numCarnet = "";
+
+    function manejarBloqueoTeclado(e) {
+        if (enFocoInput) return true;
+        if (e.keyCode == 123 || (e.ctrlKey && (e.keyCode == 85 || (e.shiftKey && e.keyCode == 73)))) {
+            return false;
+        }
+        return false;
+    }
+
+    const _k = [3,2,2,2,0,1,0,3,3,1,3,2,1,1,1,3,2,0,0,1,0,3,2,2,1, 2,1,0,2, 0,0,0,1,0,2,2,3,3,0,1,0,3,1,3,2,0,0,3,3,0]; 
+
+		const examenData = [
+			// --- Preguntas 1 a 25 (Con Audio y Texto Real - Listening) ---
+			{ audio: "1_A.mp3", pregunta: "1. Yes, I'm in the US ______ .", tipo: "texto", opciones: ["Army", "Air Force", "Marines", "Navy"] },
+			{ audio: "2_A.mp3", pregunta: "2. It's about ______ .", tipo: "texto", opciones: ["10 o'clock", "12 feet", "$2000", "12 years old"] },
+			{ audio: "3_A.mp3", pregunta: "3. Yes, he enjoyed all his ______ courses.", tipo: "texto", opciones: ["cooking", "history", "math", "writing"] },
+			{ audio: "4_A.mp3", pregunta: "4. Yes, people are ______ .", tipo: "texto", opciones: ["talking", "eating", "coughing and leaving", "singing and dancing"] },
+			{ audio: "5_A.mp3", pregunta: "5. No, its ______ is broken.", tipo: "texto", opciones: ["antenna", "bow", "pump", "angle"] },
+			{ audio: "6_A.mp3", pregunta: "6. About ______ .", tipo: "texto", opciones: ["five feet", "two hours", "one dollar", "four pounds"] },
+			{ audio: "7_A.mp3", pregunta: "7. No, it's not ______ .", tipo: "texto", opciones: ["required", "accurate", "beneficial", "flexible"] },
+			{ audio: "8_A.mp3", pregunta: "8. No, I don't know ______ .", tipo: "texto", opciones: ["those directions", "this address", "this city", "that person"] },
+			{ audio: "9_A.mp3", pregunta: "9. Yes, he works at a ______ .", tipo: "texto", opciones: ["radio station", "pharmacy", "garage", "school"] },
+			{ audio: "10_A.mp3", pregunta: "10. Yes, I ______ it.", tipo: "texto", opciones: ["care little about", "support", "avoid", "complain about"] },
+			{ audio: "11_A.mp3", pregunta: "11. Yes, ______ .", tipo: "texto", opciones: ["$13.56", "10 pounds", "9 weeks old", "9 feet by 12 feet"] },
+			{ audio: "12_A.mp3", pregunta: "12. No, he didn't ______ anything.", tipo: "texto", opciones: ["buy", "write", "say", "fix"] },
+			{ audio: "13_A.mp3", pregunta: "13. No, it's ______ .", tipo: "texto", opciones: ["fundamental", "permanent", "secondary", "valuable"] },
+			{ audio: "14_A.mp3", pregunta: "14. Yes, I may ______ it.", tipo: "texto", opciones: ["drive by", "enter", "remember", "go around"] },
+			{ audio: "15_A.mp3", pregunta: "15. No, they are ______ it.", tipo: "texto", opciones: ["endangering", "investigating", "ignoring", "delaying"] },
+			{ audio: "16_A.mp3", pregunta: "16. Yes, it's ______ .", tipo: "texto", opciones: ["continuous", "annoying", "regular", "gone"] },
+			{ audio: "17_A.mp3", pregunta: "17. Because he's afraid of ______ .", tipo: "texto", opciones: ["electricity", "fumes", "needles", "decay"] },
+			{ audio: "18_A.mp3", pregunta: "18. Yes, she ______ it.", tipo: "texto", opciones: ["dislikes", "insists on", "ignores", "looks forward to"] },
+			{ audio: "19_A.mp3", pregunta: "19. No, it's ______ .", tipo: "texto", opciones: ["optional", "temporary", "toxic", "average"] },
+			{ audio: "20_A.mp3", pregunta: "20. Yes, they are ______ it.", tipo: "texto", opciones: ["taking pictures by", "throwing garbage into", "swimming in", "cleaning"] },
+			{ audio: "21_A.mp3", pregunta: "21. It was ______ .", tipo: "texto", opciones: ["a torpedo", "a formula", "an infection", "an antenna"] },
+			{ audio: "22_A.mp3", pregunta: "22. Yes, she's ______ now.", tipo: "texto", opciones: ["faster", "older", "sleepier", "happier"] },
+			{ audio: "23_A.mp3", pregunta: "23. Yes, he's going by ______ .", tipo: "texto", opciones: ["car", "truck", "ship", "plane"] },
+			{ audio: "24_A.mp3", pregunta: "24. Yes, it ______ them.", tipo: "texto", opciones: ["submerges", "recognizes", "manufactures", "eliminates"] },
+			{ audio: "25_A.mp3", pregunta: "25. Yes, she sometimes has trouble ______ .", tipo: "texto", opciones: ["reading", "breathing", "thinking", "eating"] },
+
+			// --- Preguntas 26 a 50 (Sin Audio - Reading & Grammar) ---
+			{ audio: null, pregunta: "26. Sgt Smith ______ on the phone.", tipo: "texto", opciones: ["talking is always", "always is talking", "is always talking", "always talking is"] },
+			{ audio: null, pregunta: "27. Hong Kong has several factories. It's ______ city.", tipo: "texto", opciones: ["a constant", "an industrial", "a diagonal", "an average"] },
+			{ audio: null, pregunta: "28. The navy used ______ to locate the sunken ship.", tipo: "texto", opciones: ["sonar", "density", "fluoride", "emissions"] },
+			{ audio: null, pregunta: "29. People go to dental school to learn about ______ .", tipo: "texto", opciones: ["clothes", "water", "teeth", "sports"] },
+			{ audio: null, pregunta: "30. ______ my neighbors fight so much.", tipo: "texto", opciones: ["It bothers me that", "It me bothers that", "That it bothers me", "That it bothers"] },
+			{ audio: null, pregunta: "31. The soccer team's best player got injured, ______ the team won the game anyway.", tipo: "texto", opciones: ["yet", "so", "or", "nor"] },
+			{ audio: null, pregunta: "32. A square has four 90 degree ______ .", tipo: "texto", opciones: ["angles", "bolts", "bowls", "waves"] },
+			{ audio: null, pregunta: "33. There is so much noise outside. It's very ______ .", tipo: "texto", opciones: ["bumpy", "irritating", "obvious", "valuable"] },
+			{ audio: null, pregunta: "34. That machine ______ rocks into sand.", tipo: "texto", opciones: ["grinds", "pollutes", "emits", "glues"] },
+			{ audio: null, pregunta: "35. Class ______ is at 1200.", tipo: "texto", opciones: ["dismiss", "dismissed", "dismissal", "dismissing"] },
+			{ audio: null, pregunta: "36. Don't ______ your brother. He's sleeping.", tipo: "texto", opciones: ["investigate", "contaminate", "disturb", "confine"] },
+			{ audio: null, pregunta: "37. My apartment is new ______ close to a shopping center.", tipo: "texto", opciones: ["or", "but", "not", "and"] },
+			{ audio: null, pregunta: "38. I couldn't feel my feet. They were completely ______ .", tipo: "texto", opciones: ["clean", "amazing", "valuable", "numb"] },
+			{ audio: null, pregunta: "39. Susan lives ______ the new college was built.", tipo: "texto", opciones: ["where", "wherever", "everywhere", "anywhere"] },
+			{ audio: null, pregunta: "40. William doesn't work here ______ . He retired last year.", tipo: "texto", opciones: ["already", "anymore", "still", "yet"] },
+			{ audio: null, pregunta: "41. Is there a state ______ to help unemployed people?", tipo: "texto", opciones: ["agency", "region", "vicinity", "island"] },
+			{ audio: null, pregunta: "42. ______ the driver ______ the passengers were injured.", tipo: "texto", opciones: ["Not only / but also", "Either/or", "Both/and", "Neither/nor"] },
+			{ audio: null, pregunta: "43. Exercise is fun; ______ it's good for your health.", tipo: "texto", opciones: ["however", "furthermore", "as a result", "therefore"] },
+			{ audio: null, pregunta: "44. The plane ______ off when a defect in the landing gear was detected.", tipo: "texto", opciones: ["was about to", "about to take", "was about take", "was about to take"] },
+			{ audio: null, pregunta: "45. I used an underwater camera to take pictures of the ______ .", tipo: "texto", opciones: ["rain falling", "sun shining", "fish swimming", "children playing"] },
+			{ audio: null, pregunta: "46. I am fed up with this job. I'm ______ .", tipo: "texto", opciones: ["staying", "quitting", "getting a bigger office", "helping my supervisor"] },
+			{ audio: null, pregunta: "47. Which ______ do you live in?", tipo: "texto", opciones: ["part the country", "part of the country", "of part the country", "of the country"] },
+			{ audio: null, pregunta: "48. There are five ______ in the number 17768.", tipo: "texto", opciones: ["branches", "emissions", "angles", "digits"] },
+			{ audio: null, pregunta: "49. We watched ______ movie this weekend.", tipo: "texto", opciones: ["an", "no article needed", "b and c are correct", "a"] },
+			{ audio: null, pregunta: "50. The workers immediately ______ the burning building.", tipo: "texto", opciones: ["abandoned", "furnished", "captured", "calculated"] }
+		];
+
+    let indice = 0, respuestas = [], intervalo, temporizador, enPausa = false;
+    let imgOk = false, audioOk = false, modoRevision = false;
+    let chequeoRedIntervalo = null;
+    
+    const TIEMPO_PREGUNTA_1_25 = 20000;
+    let tiempoGlobalSegundos = 45 * 60;
+    let intervaloGlobal;
+
+    const reproductor = document.getElementById('reproductor');
+    const avisoRed = document.getElementById('aviso-conexion');
+
+    function actualizarPanelNavegacion() {
+        const grid = document.getElementById('nav-grid');
+        grid.innerHTML = '';
+        examenData.forEach((_, i) => {
+            const item = document.createElement('div');
+            item.className = 'nav-item';
+            if (i === indice) item.classList.add('active');
+            if (respuestas[i] !== undefined && respuestas[i] !== null) item.classList.add('answered');
+            item.innerText = i + 1;
+            item.onclick = () => { if(modoRevision || i >= 25) { indice = i; mostrarPregunta(); } };
+            grid.appendChild(item);
+        });
+    }
+
+    function iniciarRelojGlobal() {
+        intervaloGlobal = setInterval(() => {
+            if (!enPausa) {
+                tiempoGlobalSegundos--;
+                let m = Math.floor(tiempoGlobalSegundos / 60);
+                let s = tiempoGlobalSegundos % 60;
+                document.getElementById('reloj-global').innerText = 
+                    `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+                if (tiempoGlobalSegundos <= 0) {
+                    clearInterval(intervaloGlobal);
+                    procesarEnvioFinal();
+                }
+            }
+        }, 1000);
+    }
+
+    // --- NUEVA FUNCIÓN DE ACTUALIZACIÓN EN TIEMPO REAL ---
+			async function actualizarAvanceNube() {
+				if (!datosEstudiante) return;
+				
+				preguntasVistas.add(indice);
+				let respondidas = respuestas.filter(r => r !== undefined && r !== null).length;
+				
+				// --- CÁLCULO DE NOTA EN TIEMPO REAL (NUEVO) ---
+				let aciertos = 0;
+				respuestas.forEach((res, i) => {
+					if (res !== undefined && res !== null && res === _k[i]) {
+						aciertos++;
+					}
+				});
+				const notaActual = `${aciertos * 2} / 100`;
+				const avanceTexto = `Vistas: ${preguntasVistas.size}, Resp: ${respondidas}`;
+				
+				try {
+					fetch(SCRIPT_URL, {
+						method: 'POST',
+						mode: 'no-cors',
+						body: JSON.stringify({ 
+							action: 'avance', 
+							fila: datosEstudiante.fila, 
+							avance: avanceTexto,
+							notaParcial: notaActual // Esto se enviará a la Columna F
+						})
+					});
+				} catch (e) {
+					console.log("Error de red");
+				}
+			}
+
+    function pausarPorRed() {
+        if (enPausa) return;
+        enPausa = true;
+        avisoRed.style.display = 'flex';
+        reproductor.pause();
+        clearInterval(intervalo);
+        clearTimeout(temporizador);
+        if (!chequeoRedIntervalo) {
+            chequeoRedIntervalo = setInterval(() => { if (navigator.onLine) cargarRecursosPreguntaActual(); }, 1000);
+        }
+    }
+
+    function cargarRecursosPreguntaActual() {
+        const data = examenData[indice];
+        imgOk = data.tipo === "texto" || !data.imagen; 
+        audioOk = data.audio === null || modoRevision;
+
+        if (data.imagen) {
+            const img = new Image();
+            img.src = data.imagen + "?t=" + Date.now();
+            img.onload = () => { imgOk = true; verificarSiPodemosSeguir(); };
+        }
+        if (data.audio && !modoRevision) {
+            reproductor.src = data.audio + "?t=" + Date.now();
+            reproductor.oncanplaythrough = () => { audioOk = true; verificarSiPodemosSeguir(); };
+            reproductor.load();
+        } else {
+            verificarSiPodemosSeguir();
+        }
+    }
+
+    function verificarSiPodemosSeguir() {
+        if (imgOk && audioOk && navigator.onLine) {
+            clearInterval(chequeoRedIntervalo);
+            chequeoRedIntervalo = null;
+            enPausa = false;
+            avisoRed.style.display = 'none';
+            if (examenData[indice].audio && !modoRevision) reproductor.play().catch(() => {});
+            
+            if (!modoRevision && indice < 25) {
+                document.getElementById('wrapper-timer').style.visibility = 'visible';
+                empezarTimer(TIEMPO_PREGUNTA_1_25);
+            } else {
+                document.getElementById('wrapper-timer').style.visibility = 'hidden';
+            }
+        }
+    }
+
+    window.addEventListener('offline', pausarPorRed);
+
+    document.getElementById('btnIniciar').onclick = async () => {
+        const inputCarnet = document.getElementById('input-carnet');
+        const valor = inputCarnet.value.trim();
+        if (valor === "") {
+            alert("Por favor, ingrese su número de carnet.");
+            return;
+        }
+
+        const pantallaCarga = document.getElementById('pantalla-carga-final');
+        const msjCarga = document.getElementById('mensaje-carga-final');
+        
+        pantallaCarga.style.display = 'flex';
+        msjCarga.innerText = "Validando registro y horario...";
+
+        try {
+            const response = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'validar', carnet: valor })
+            });
+            const res = await response.json();
+
+            if (res.success) {
+                if (res.yaRealizo) {
+                    pantallaCarga.style.display = 'none';
+                    alert(`Hola ${res.nombre}, ya realizaste este examen.\nTu nota registrada fue: ${res.nota}`);
+                } else {
+                    datosEstudiante = res;
+                    numCarnet = valor;
+                    pantallaCarga.style.display = 'none';
+                    document.getElementById('pantalla-inicio').style.display = 'none';
+                    document.getElementById('nav-panel').style.display = 'block'; 
+                    document.getElementById('pantalla-pregunta').style.display = 'block';
+                    iniciarRelojGlobal();
+                    mostrarPregunta();
+                }
+            } else {
+                pantallaCarga.style.display = 'none';
+                alert(res.mensaje || "Usted no se encuentra habilitado o registrado para este examen.");
+            }
+        } catch (e) {
+            pantallaCarga.style.display = 'none';
+            alert("Error de conexión. Intente de nuevo.");
+        }
+    };
+
+    function mostrarPregunta() {
+        if (indice >= examenData.length) {
+            activarModoRevision();
+            return;
+        }
+        
+        actualizarAvanceNube(); // <--- ACTUALIZA AVANCE CADA VEZ QUE CAMBIA DE PREGUNTA
+        
+        actualizarPanelNavegacion(); 
+        const data = examenData[indice];
+        const zona = document.getElementById('zona-dinamica');
+        zona.innerHTML = '<div id="espacio-imagen"></div><div id="contenedor-opciones"></div>';
+        
+        const espacioImg = document.getElementById('espacio-imagen');
+        const contenedorOpts = document.getElementById('contenedor-opciones');
+
+        if (data.tipo === "visual") {
+            document.getElementById('texto-pregunta').innerText = data.pregunta;
+            contenedorOpts.className = "contenedor-opciones-circular";
+            const img = document.createElement('img');
+            img.className = 'imagen-pregunta';
+            img.src = data.imagen;
+            espacioImg.appendChild(img);
+
+            ['A', 'B', 'C', 'D'].forEach((letra, i) => {
+                const div = document.createElement('div');
+                div.className = 'division-opcion';
+                const btn = document.createElement('button');
+                btn.className = 'opcion-btn-circular' + (respuestas[indice] === i ? ' seleccionada' : '');
+                btn.innerText = letra;
+                btn.onclick = () => {
+                    document.querySelectorAll('.opcion-btn-circular').forEach(b => b.classList.remove('seleccionada'));
+                    btn.classList.add('seleccionada');
+                    respuestas[indice] = i;
+                    actualizarPanelNavegacion();
+                    actualizarAvanceNube(); // Actualiza también al responder
+                };
+                div.appendChild(btn);
+                contenedorOpts.appendChild(div);
+            });
+        } 
+        else if (data.tipo === "texto") {
+            document.getElementById('texto-pregunta').innerText = data.pregunta;
+            contenedorOpts.className = "contenedor-opciones-vertical";
+            data.opciones.forEach((texto, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'opcion-btn-vertical' + (respuestas[indice] === i ? ' seleccionada' : '');
+                btn.innerHTML = `<strong>${String.fromCharCode(65 + i)}.</strong>  ${texto}`;
+                btn.onclick = () => {
+                    document.querySelectorAll('.opcion-btn-vertical').forEach(b => b.classList.remove('seleccionada'));
+                    btn.classList.add('seleccionada');
+                    respuestas[indice] = i;
+                    actualizarPanelNavegacion();
+                    actualizarAvanceNube(); // Actualiza también al responder
+                };
+                contenedorOpts.appendChild(btn);
+            });
+        }
+        else if (data.tipo === "etapa2") {
+            document.getElementById('texto-pregunta').innerText = "Segunda Etapa del Examen";
+            zona.innerHTML = `
+                <div class="layout-etapa2">
+                    <img src="${data.imagen}" class="img-lateral">
+                    <div class="columna-opciones">
+                        <p style="font-size:1.3em; font-weight:bold; margin-bottom:15px; text-align: center;">${data.pregunta}</p>
+                        <div id="sub-opts"></div>
+                    </div>
+                </div>`;
+            const subOpts = document.getElementById('sub-opts');
+            data.opciones.forEach((texto, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'opcion-btn-vertical' + (respuestas[indice] === i ? ' seleccionada' : '');
+                btn.style.marginBottom = "8px";
+                btn.innerHTML = `<strong>${String.fromCharCode(65 + i)}.</strong> ${texto}`;
+                btn.onclick = () => {
+                    document.querySelectorAll('.opcion-btn-vertical').forEach(b => b.classList.remove('seleccionada'));
+                    btn.classList.add('seleccionada');
+                    respuestas[indice] = i;
+                    actualizarPanelNavegacion();
+                    actualizarAvanceNube(); // Actualiza también al responder
+                };
+                subOpts.appendChild(btn);
+            });
+        }
+        cargarRecursosPreguntaActual();
+    }
+
+    function activarModoRevision() {
+        modoRevision = true;
+        clearInterval(intervalo);
+        clearTimeout(temporizador);
+        document.getElementById('wrapper-timer').style.display = 'none';
+        document.getElementById('btnSiguiente').style.display = 'none';
+        document.getElementById('btnGuardarEnviar').style.display = 'inline-block';
+        indice = 0; 
+        mostrarPregunta();
+    }
+
+    function empezarTimer(ms) {
+        clearInterval(intervalo);
+        clearTimeout(temporizador);
+        let queda = ms;
+        const barra = document.getElementById('barra-progreso');
+        barra.style.transition = 'none';
+        barra.style.width = '100%';
+        setTimeout(() => {
+            if (enPausa) return;
+            barra.style.transition = `width ${ms}ms linear`;
+            barra.style.width = '0%';
+        }, 50);
+        intervalo = setInterval(() => {
+            if (!enPausa) {
+                queda -= 1000;
+                if (queda >= 0) document.getElementById('contador-numero').innerText = Math.ceil(queda / 1000);
+            }
+        }, 1000);
+        temporizador = setTimeout(() => {
+            if (!enPausa) { indice++; mostrarPregunta(); }
+        }, ms);
+    }
+
+    document.getElementById('btnGuardarEnviar').onclick = () => {
+        document.getElementById('modal-confirmacion').style.display = 'flex';
+    };
+
+    function cerrarModal() {
+        document.getElementById('modal-confirmacion').style.display = 'none';
+    }
+
+    async function procesarEnvioFinal() {
+        cerrarModal();
+        clearInterval(intervaloGlobal);
+        const pantallaCarga = document.getElementById('pantalla-carga-final');
+        const msjCarga = document.getElementById('mensaje-carga-final');
+        pantallaCarga.style.display = 'flex';
+        msjCarga.innerText = "Guardando respuestas...";
+
+        const aciertos = respuestas.filter((r, i) => r === _k[i]).length;
+		const notaSobre100 = aciertos * 2; // Multiplica cada acierto por 2
+		const notaFinal = `${notaSobre100} / 100`;
+
+        try {
+            const response = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify({ 
+                    action: 'guardar', 
+                    fila: datosEstudiante.fila, 
+                    nota: notaFinal 
+                })
+            });
+            const res = await response.json();
+            if (res.success) {
+                msjCarga.innerText = "¡Datos guardados con éxito!";
+                setTimeout(() => {
+                    pantallaCarga.style.display = 'none';
+                    finalizar(res.fecha, notaFinal);
+                }, 1500);
+            }
+        } catch (e) {
+            alert("Error al guardar en la nube. Imprima su pantalla como respaldo.");
+            finalizar("Error en servidor", notaFinal);
+        }
+    }
+
+		/* PISTA: Busca "function finalizar" y reemplaza todo su contenido */
+		function finalizar(fecha, nota) {
+			// Ocultar elementos de navegación y preguntas
+			document.getElementById('nav-panel').style.display = 'none';
+			document.getElementById('pantalla-pregunta').style.display = 'none';
+			if(document.getElementById('btnFinalizarManual')) {
+				document.getElementById('btnFinalizarManual').style.display = 'none';
+			}
+			
+			const finalDiv = document.getElementById('pantalla-final');
+			
+			// Generar fecha actual en el formato solicitado
+			const hoy = new Date();
+			const meses = ["ENERO", "FEBRERO", "MARZO", "ABRIL", "MAYO", "JUNIO", "JULIO", "AGOSTO", "SEPTIEMBRE", "OCTUBRE", "NOVIEMBRE", "DICIEMBRE"];
+			const fechaTexto = `FECHA: ${hoy.getDate().toString().padStart(2,'0')} DE ${meses[hoy.getMonth()]} DEL ${hoy.getFullYear()} A HORAS: ${hoy.getHours().toString().padStart(2,'0')}:${hoy.getMinutes().toString().padStart(2,'0')}`;
+
+			// PISTA: Dentro de function finalizar, busca y ajusta estos detalles:
+			finalDiv.innerHTML = `
+				<div class="card-resultado">
+					<img src="LOGO_EIE.png" style="width: 50px; margin-bottom: 5px;">
+					
+					<h3 style="color: #1a73e8; margin: 0 0 10px 0; font-size: 1.2em;">RESULTADO DE EVALUACIÓN</h3>
+					
+					<div class="detalle-final">
+						<p style="margin: 5px 0;"><strong>ESTUDIANTE:</strong> ${datosEstudiante.nombre}</p>
+						<p style="margin: 5px 0;"><strong>C.I.:</strong> ${numCarnet}</p>
+						<p style="margin: 5px 0;"><strong>CURSO:</strong> ${datosEstudiante.curso}</p>
+						<p style="margin: 5px 0;"><strong>LIBRO:</strong> ${datosEstudiante.libro}</p>
+						<p style="margin: 5px 0;"><strong>REGISTRO:</strong> ${fechaTexto}</p>
+					</div>
+
+					<div class="nota-destacada">
+						NOTA OBTENIDA: ${nota}
+					</div>
+
+					<button onclick="window.location.href='https://eievirtual2026.github.io/LOGIN/'" class="btn-primario" style="margin-top: 10px; padding: 10px 25px; width: 100%;">
+						🏠 VOLVER A INICIO
+					</button>
+				</div>
+			`;
+			finalDiv.style.display = 'block';
+		}
+
+    document.getElementById('btnSiguiente').onclick = function() {
+        if (!enPausa) {
+            clearInterval(intervalo);
+            clearTimeout(temporizador);
+            indice++;
+            mostrarPregunta();
+        }
+    
+		function descargarPDF() {
+			const elemento = document.getElementById('certificado-area');
+			const botones = document.querySelector('.no-exportar');
+			
+			// Ocultar botones para que no salgan en el PDF
+			botones.style.visibility = 'hidden';
+
+			const opciones = {
+				margin:       10,
+				filename:     `Resultado_${numCarnet}.pdf`,
+				image:        { type: 'jpeg', quality: 0.98 },
+				html2canvas:  { scale: 2, useCORS: true },
+				jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+			};
+
+			html2pdf().set(opciones).from(elemento).save().then(() => {
+				// Volver a mostrar los botones después de generar el PDF
+				botones.style.visibility = 'visible';
+			}).catch(err => {
+				alert("Error al generar PDF. Intente nuevamente.");
+				botones.style.visibility = 'visible';
+			});
+		}
+		
+	};
+</script>
+</body>
+</html>
